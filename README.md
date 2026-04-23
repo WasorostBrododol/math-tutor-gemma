@@ -1,23 +1,22 @@
-# MathMentor — On-device AI math tutor
+# MathMentor
 
-Privacy-preserving, offline-capable math tutor that generates custom Manim
-animations. Runs locally on commodity hardware.
+On-device AI math tutor that generates custom Manim animations from natural language questions. Runs locally, no cloud, no API costs.
 
-Built for [Gemma 4 Good Hackathon](https://www.kaggle.com/competitions/gemma-4-good-hackathon).
+Built for the [Gemma 4 Good Hackathon](https://www.kaggle.com/competitions/gemma-4-good-hackathon).
 
 ## Status
 
-🚧 In active development. See [PROJECT_SPEC.md](PROJECT_SPEC.md) for vision and
-architecture.
+In active development.
 
 ## Requirements
 
-- macOS / Linux
+- macOS or Linux
 - Python 3.12+
 - Node.js 18+
 - Ollama
-- Gemma 4 model (E2B, E4B, or 26B MoE)
+- Gemma 4 model (E2B, E4B, or 26B)
 - Manim Community
+- LaTeX (TeX Live)
 
 ## Setup
 
