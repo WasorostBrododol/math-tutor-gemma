@@ -1,0 +1,28 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Manim output
+media/
+videos/*.mp4
+videos/*.svg
+
+# Node
+node_modules/
+dist/
+
+# Database
+*.db
+*.sqlite
+
+# Environment
+.env
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+CLAUDE.md
+PROJECT_SPEC.md
