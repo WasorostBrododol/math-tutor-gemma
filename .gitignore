@@ -24,3 +24,5 @@ dist/
 # IDE
 .vscode/
 .idea/
+CLAUDE.md
+PROJECT_SPEC.md
