@@ -6,8 +6,7 @@ __pycache__/
 
 # Manim output
 media/
-videos/*.mp4
-videos/*.svg
+videos/
 
 # Node
 node_modules/
@@ -24,5 +23,10 @@ dist/
 # IDE
 .vscode/
 .idea/
-CLAUDE.md
-PROJECT_SPEC.md
+
+# Private planning docs (local only, not part of submission)
+.private/
+
+# Baseline experiment artifacts (raw Gemma outputs, not for the public repo)
+experiments/baseline/*.py
+experiments/baseline/*.log
