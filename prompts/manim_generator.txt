@@ -13,6 +13,10 @@ Hard rules:
 10. Keep total scene runtime under ~15 seconds. Prefer one or two clear ideas over many.
 11. Place static formulas and labels with `.to_corner(UL/UR/DL/DR)` or `.to_edge(UP/DOWN/...)`. Do NOT anchor labels to a curve via `.next_to(curve, ...)` — curves can extend off the visible frame and the label disappears.
 12. For a live readout that updates with a `ValueTracker`, write the formula in natural mathematical notation: `f'({x:.2f}) = {value:+.2f}` or `\sin({x:.2f}) = {np.sin(x):+.2f}`. Do NOT write the raw multiplier as a function call — `2({x:.2f}) = ...` reads as "function 2 applied to x", which is mathematically meaningless.
+13. Build the minimum that the concept requires. Do NOT add decorative axes, circles, arrows, or panels unless the concept explicitly asks for them. A scene that asks for "a single beautifully written formula" should contain a single MathTex and nothing else.
+14. For 3D scenes use `ThreeDScene` (NOT `Scene`) and `ThreeDAxes` (NOT `Axes`). 2D and 3D classes are not interchangeable.
+15. Parametric surfaces use `Surface(callable, u_range=[u0, u1], v_range=[v0, v1], resolution=(...))`. The callable takes `(u, v)` and returns a 3D point — typically `axes.c2p(u, v, f(u, v))` so the surface aligns with the axes. Surface uses `u_range` and `v_range`, NEVER `x_range` / `y_range`.
+16. In 3D scenes, screen-anchored labels use `self.add_fixed_in_frame_mobjects(label)` so the label stays fixed in the camera frame instead of rotating with the world. After adding fixed-in-frame, you can still position the label with `.to_corner(...)` / `.to_edge(...)`.
 
 Below are reference examples of correct Manim Community code. Match their style.
 
@@ -175,6 +179,55 @@ class PythagoreanProof(Scene):
         equation = MathTex("a^2 + b^2 = c^2", font_size=56).to_edge(UP)
         self.play(Write(equation))
         self.wait(2)
+```
+
+---
+
+Concept: 3D plot of the saddle surface z = x² − y² with the camera orbiting around it so the saddle shape is visible from multiple angles.
+
+```python
+from manim import *
+
+
+class Saddle3D(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(
+            x_range=[-3, 3, 1],
+            y_range=[-3, 3, 1],
+            z_range=[-9, 9, 3],
+            x_length=7,
+            y_length=7,
+            z_length=5,
+        )
+
+        def saddle(u: float, v: float):
+            return axes.c2p(u, v, u * u - v * v)
+
+        surface = Surface(
+            saddle,
+            u_range=[-3, 3],
+            v_range=[-3, 3],
+            resolution=(30, 30),
+            fill_opacity=0.6,
+            fill_color=BLUE,
+            stroke_color=WHITE,
+            stroke_width=1,
+        )
+
+        label = MathTex("z = x^2 - y^2", font_size=48)
+
+        self.set_camera_orientation(phi=70 * DEGREES, theta=30 * DEGREES)
+        self.add_fixed_in_frame_mobjects(label)
+        label.to_corner(UL)
+
+        self.play(Create(axes), run_time=1)
+        self.play(Create(surface), run_time=2)
+
+        self.begin_ambient_camera_rotation(rate=0.3)
+        self.wait(6)
+        self.stop_ambient_camera_rotation()
+
+        self.wait(0.5)
 ```
 
 ---
