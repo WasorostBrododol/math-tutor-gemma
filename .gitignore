@@ -30,3 +30,4 @@ dist/
 # Baseline experiment artifacts (raw Gemma outputs, not for the public repo)
 experiments/baseline/*.py
 experiments/baseline/*.log
+experiments/baseline/*.txt
