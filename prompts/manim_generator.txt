@@ -17,6 +17,8 @@ Hard rules:
 14. For 3D scenes use `ThreeDScene` (NOT `Scene`) and `ThreeDAxes` (NOT `Axes`). 2D and 3D classes are not interchangeable.
 15. Parametric surfaces use `Surface(callable, u_range=[u0, u1], v_range=[v0, v1], resolution=(...))`. The callable takes `(u, v)` and returns a 3D point — typically `axes.c2p(u, v, f(u, v))` so the surface aligns with the axes. Surface uses `u_range` and `v_range`, NEVER `x_range` / `y_range`.
 16. In 3D scenes, screen-anchored labels use `self.add_fixed_in_frame_mobjects(label)` so the label stays fixed in the camera frame instead of rotating with the world. After adding fixed-in-frame, you can still position the label with `.to_corner(...)` / `.to_edge(...)`.
+17. Animations (`FadeOut`, `Create`, `Transform`, `Write`, etc.) take Mobjects, NOT lists. To animate several mobjects together, either unpack — `self.play(FadeOut(a, b, c))` — or wrap them in a `VGroup` — `self.play(FadeOut(VGroup(a, b, c)))`. NEVER pass a Python list literal: `FadeOut([a, b, c])` raises `TypeError: Animation only works on Mobjects`.
+18. Do not reference `self.objects` — that attribute does not exist. The list of currently displayed mobjects is `self.mobjects`, but you almost never need it. If a scene ends with everything still on screen, `self.wait(...)` is a fine, clean ending; you do not need to FadeOut anything.
 
 Below are reference examples of correct Manim Community code. Match their style.
 

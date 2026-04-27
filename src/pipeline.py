@@ -25,7 +25,7 @@ ERROR_TAIL_CHARS = 3000
 REPAIR_TEMPLATE = """The previous Manim scene failed to render. Manim's error output (tail):
 
 {error}
-
+{hint_block}
 Your previous code was:
 
 ```python
@@ -33,6 +33,60 @@ Your previous code was:
 ```
 
 Fix the bug and produce a corrected version. Output ONLY a single ```python fenced code block with the full corrected scene, no commentary before or after."""
+
+
+# Common Manim error patterns → human-readable repair hints. Gemma follows
+# these much more reliably than raw stderr, which is often a deep traceback.
+HINTS: list[tuple[str, str]] = [
+    (
+        "could not broadcast input array",
+        "You almost certainly passed pre-evaluated arrays to `ax.plot(...)`. "
+        "Manim's `ax.plot` takes a CALLABLE: `ax.plot(np.sin, x_range=[-PI, PI])`. "
+        "Never `ax.plot(x_values, np.sin(x_values))`.",
+    ),
+    (
+        "got an unexpected keyword argument 'x_range'",
+        "`Surface` and other parametric mobjects use `u_range=[u0, u1]` and "
+        "`v_range=[v0, v1]`, NEVER `x_range`/`y_range`. The callable takes "
+        "(u, v) and returns a 3D point — usually `axes.c2p(u, v, f(u, v))`.",
+    ),
+    (
+        "got an unexpected keyword argument 'y_range'",
+        "`Surface` uses `u_range` and `v_range`, never `x_range`/`y_range`.",
+    ),
+    (
+        "Animation only works on Mobjects",
+        "You passed a Python list (or something non-Mobject) to an animation. "
+        "Wrap with `VGroup(*items)` or unpack: `FadeOut(*items)` — NEVER `FadeOut([a, b, c])`.",
+    ),
+    (
+        "has no attribute 'objects'",
+        "`self.objects` does not exist on a Scene. End the scene with `self.wait(...)` — "
+        "you do not need to FadeOut everything at the end.",
+    ),
+    (
+        "got an unexpected keyword argument 'point_size'",
+        "`Dot` takes `radius=...`, not `point_size=...`.",
+    ),
+    (
+        "got an unexpected keyword argument 'points'",
+        "`Triangle` is hardcoded equilateral and rejects custom points. "
+        "Use `Polygon(*vertices)` for any non-equilateral triangle or custom polygon.",
+    ),
+    (
+        "no mp4 in",
+        "Manim ran but produced no video. Common causes: a `construct()` exception "
+        "swallowed silently (look for typos in mobject constructors), or an animation "
+        "with a non-Mobject argument that failed before any frame was written.",
+    ),
+]
+
+
+def derive_hint(error: str) -> str | None:
+    for needle, hint in HINTS:
+        if needle in error:
+            return hint
+    return None
 
 
 def extract_code(raw: str) -> tuple[str, bool]:
@@ -60,9 +114,16 @@ def ask(concept: str, model: str = DEFAULT_MODEL, max_retries: int = MAX_RETRIES
         if attempt == 0:
             prompt = initial_prompt
         else:
-            print(f"[gemma] retry {attempt}/{max_retries}", file=sys.stderr)
+            hint = derive_hint(last_error or "")
+            if hint:
+                print(f"[gemma] retry {attempt}/{max_retries} (hint: {hint[:60]}...)", file=sys.stderr)
+                hint_block = f"\nHint for this specific error:\n{hint}\n"
+            else:
+                print(f"[gemma] retry {attempt}/{max_retries}", file=sys.stderr)
+                hint_block = ""
             prompt = REPAIR_TEMPLATE.format(
                 error=(last_error or "")[-ERROR_TAIL_CHARS:],
+                hint_block=hint_block,
                 code=last_code or "",
             )
 
