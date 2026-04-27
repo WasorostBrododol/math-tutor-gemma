@@ -1,3 +1,5 @@
 manim
 requests
 pytest
+fastapi
+uvicorn[standard]
