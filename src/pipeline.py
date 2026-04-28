@@ -37,7 +37,26 @@ Fix the bug and produce a corrected version. Output ONLY a single ```python fenc
 
 # Common Manim error patterns → human-readable repair hints. Gemma follows
 # these much more reliably than raw stderr, which is often a deep traceback.
+# ORDER MATTERS: more specific patterns first; the first match wins. Shape
+# `(1,2) into (1,3)` is a different bug from a generic broadcast and would be
+# misdiagnosed if the generic broadcast hint matched it first.
 HINTS: list[tuple[str, str]] = [
+    (
+        "from shape (1,2) into shape (1,3)",
+        "You used a 2D numpy array as a Manim point. Manim requires 3D "
+        "points: `np.array([x, y, 0])`. If you compute many points, define "
+        "a helper `def vec(x, y): return np.array([x, y, 0])` and use it "
+        "everywhere, including for endpoints of `Line(...)`, `Polygon(...)`, "
+        "and any `coords_to_point` results that you then mutate.",
+    ),
+    (
+        "No module named 'matplotlib'",
+        "Do not import matplotlib. The pipeline only renders Manim Community "
+        "Edition scenes — `import matplotlib` is wrong here. Stay inside "
+        "`from manim import *` and use `Scene` (or `ThreeDScene` for 3D) "
+        "with manim's API: `axes.plot(callable, x_range=...)`, `Surface(...)`, "
+        "`VGroup(...)`, etc.",
+    ),
     (
         "could not broadcast input array",
         "You almost certainly passed pre-evaluated arrays to `ax.plot(...)`. "

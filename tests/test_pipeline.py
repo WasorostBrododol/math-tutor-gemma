@@ -80,3 +80,25 @@ def test_hint_recognises_triangle_points_kwarg():
 def test_hint_returns_none_for_unknown_error():
     err = "ZeroDivisionError: division by zero"
     assert derive_hint(err) is None
+
+
+def test_hint_recognises_2d_point_used_where_3d_required():
+    err = "ValueError: could not broadcast input array from shape (1,2) into shape (1,3)"
+    hint = derive_hint(err)
+    assert hint is not None
+    assert "3D" in hint or "np.array([x, y, 0])" in hint
+
+
+def test_2d_point_hint_takes_priority_over_generic_broadcast_hint():
+    err = "ValueError: could not broadcast input array from shape (1,2) into shape (1,3)"
+    hint = derive_hint(err)
+    # Specific 2D-point hint should win, not the generic ax.plot hint
+    assert "ax.plot" not in (hint or "")
+
+
+def test_hint_recognises_matplotlib_escape():
+    err = "ModuleNotFoundError: No module named 'matplotlib'"
+    hint = derive_hint(err)
+    assert hint is not None
+    assert "manim" in hint.lower()
+    assert "matplotlib" in hint.lower()

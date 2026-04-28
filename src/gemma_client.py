@@ -9,7 +9,7 @@ import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = "gemma4:e4b-it-q8_0"
-DEFAULT_TIMEOUT = 300
+DEFAULT_TIMEOUT = 600
 
 
 def ask_gemma(prompt: str, model: str = DEFAULT_MODEL) -> str:
