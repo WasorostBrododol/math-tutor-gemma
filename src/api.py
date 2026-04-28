@@ -19,12 +19,23 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.pipeline import SESSIONS_DIR, ask
 
 app = FastAPI(title="MathMentor pipeline API")
+
+# Allow the Vite dev server to call the API without CORS errors. Local-only
+# tool, so the wide-open origin list is fine for now.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 VIDEOS_ROOT = Path("videos")
 VIDEOS_ROOT.mkdir(exist_ok=True)

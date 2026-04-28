@@ -1,0 +1,4 @@
+/* Minimal reset; per-component styling lives in App.css. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; }
